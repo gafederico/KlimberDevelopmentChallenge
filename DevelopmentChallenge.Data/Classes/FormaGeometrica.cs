@@ -4,13 +4,15 @@
 
 /*
  * TODO: 
- * Refactorizar la clase para respetar principios de la programación orientada a objetos.
- * Implementar la forma Trapecio/Rectangulo. 
- * Agregar el idioma Italiano (o el deseado) al reporte.
+ * Refactorizar la clase para respetar principios de la programación orientada a objetos. => Se implementaron interfaces
+ * Implementar la forma Trapecio/Rectangulo. => Agregados como clases que implementan la interfaz
+ * Agregar el idioma Italiano (o el deseado) al reporte. => Se agregó ILocalization, se exportó los recursos a .resx y se implementó el idioma Italiano 🤌
  * Se agradece la inclusión de nuevos tests unitarios para validar el comportamiento de la nueva funcionalidad agregada (los tests deben pasar correctamente al entregar la solución, incluso los actuales.)
  * Una vez finalizado, hay que subir el código a un repo GIT y ofrecernos la URL para que podamos utilizar la nueva versión :).
  */
 
+using DevelopmentChallenge.Data.Classes.Formas;
+using DevelopmentChallenge.Data.Classes.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,153 +23,90 @@ namespace DevelopmentChallenge.Data.Classes
     public class FormaGeometrica
     {
         #region Formas
-
         public const int Cuadrado = 1;
         public const int TrianguloEquilatero = 2;
         public const int Circulo = 3;
         public const int Trapecio = 4;
-
+        public const int Rectangulo = 5;
         #endregion
 
         #region Idiomas
-
         public const int Castellano = 1;
         public const int Ingles = 2;
-
+        public const int Italiano = 3;
         #endregion
 
-        private readonly decimal _lado;
+        // --- Adaptador legacy ---
+        public int Tipo { get; private set; }
 
-        public int Tipo { get; set; }
+        // parámetros posibles
+        private readonly decimal _lado;                   // cuadrado, triángulo
+        private readonly decimal _diametro;               // círculo
+        private readonly decimal _ancho, _alto;           // rectángulo
+        private readonly decimal _baseMayor, _baseMenor, _altura, _ladoOblicuo; // trapecio isósceles
 
+        // Constructores legacy existentes:
         public FormaGeometrica(int tipo, decimal ancho)
         {
             Tipo = tipo;
-            _lado = ancho;
+            // compat: los tests viejos usan este ctor:
+            if (tipo == Cuadrado || tipo == TrianguloEquilatero) _lado = ancho;
+            else if (tipo == Circulo) _diametro = ancho;
+            else throw new ArgumentException("Constructor incompatible para esta forma");
         }
 
-        public static string Imprimir(List<FormaGeometrica> formas, int idioma)
+        // Nuevos para rectángulo
+        public FormaGeometrica(decimal ancho, decimal alto)
         {
-            var sb = new StringBuilder();
-
-            if (!formas.Any())
-            {
-                if (idioma == Castellano)
-                    sb.Append("<h1>Lista vacía de formas!</h1>");
-                else
-                    sb.Append("<h1>Empty list of shapes!</h1>");
-            }
-            else
-            {
-                // Hay por lo menos una forma
-                // HEADER
-                if (idioma == Castellano)
-                    sb.Append("<h1>Reporte de Formas</h1>");
-                else
-                    // default es inglés
-                    sb.Append("<h1>Shapes report</h1>");
-
-                var numeroCuadrados = 0;
-                var numeroCirculos = 0;
-                var numeroTriangulos = 0;
-
-                var areaCuadrados = 0m;
-                var areaCirculos = 0m;
-                var areaTriangulos = 0m;
-
-                var perimetroCuadrados = 0m;
-                var perimetroCirculos = 0m;
-                var perimetroTriangulos = 0m;
-
-                for (var i = 0; i < formas.Count; i++)
-                {
-                    if (formas[i].Tipo == Cuadrado)
-                    {
-                        numeroCuadrados++;
-                        areaCuadrados += formas[i].CalcularArea();
-                        perimetroCuadrados += formas[i].CalcularPerimetro();
-                    }
-                    if (formas[i].Tipo == Circulo)
-                    {
-                        numeroCirculos++;
-                        areaCirculos += formas[i].CalcularArea();
-                        perimetroCirculos += formas[i].CalcularPerimetro();
-                    }
-                    if (formas[i].Tipo == TrianguloEquilatero)
-                    {
-                        numeroTriangulos++;
-                        areaTriangulos += formas[i].CalcularArea();
-                        perimetroTriangulos += formas[i].CalcularPerimetro();
-                    }
-                }
-                
-                sb.Append(ObtenerLinea(numeroCuadrados, areaCuadrados, perimetroCuadrados, Cuadrado, idioma));
-                sb.Append(ObtenerLinea(numeroCirculos, areaCirculos, perimetroCirculos, Circulo, idioma));
-                sb.Append(ObtenerLinea(numeroTriangulos, areaTriangulos, perimetroTriangulos, TrianguloEquilatero, idioma));
-
-                // FOOTER
-                sb.Append("TOTAL:<br/>");
-                sb.Append(numeroCuadrados + numeroCirculos + numeroTriangulos + " " + (idioma == Castellano ? "formas" : "shapes") + " ");
-                sb.Append((idioma == Castellano ? "Perimetro " : "Perimeter ") + (perimetroCuadrados + perimetroTriangulos + perimetroCirculos).ToString("#.##") + " ");
-                sb.Append("Area " + (areaCuadrados + areaCirculos + areaTriangulos).ToString("#.##"));
-            }
-
-            return sb.ToString();
+            Tipo = Rectangulo;
+            _ancho = ancho; _alto = alto;
         }
 
-        private static string ObtenerLinea(int cantidad, decimal area, decimal perimetro, int tipo, int idioma)
+        // Nuevos para trapecio isósceles
+        public FormaGeometrica(decimal baseMayor, decimal baseMenor, decimal altura, decimal ladoOblicuo)
         {
-            if (cantidad > 0)
-            {
-                if (idioma == Castellano)
-                    return $"{cantidad} {TraducirForma(tipo, cantidad, idioma)} | Area {area:#.##} | Perimetro {perimetro:#.##} <br/>";
-
-                return $"{cantidad} {TraducirForma(tipo, cantidad, idioma)} | Area {area:#.##} | Perimeter {perimetro:#.##} <br/>";
-            }
-
-            return string.Empty;
+            Tipo = Trapecio;
+            _baseMayor = baseMayor; _baseMenor = baseMenor; _altura = altura; _ladoOblicuo = ladoOblicuo;
         }
 
-        private static string TraducirForma(int tipo, int cantidad, int idioma)
+        // Adaptador hacia IShape
+        internal IForma ToIForma()
         {
-            switch (tipo)
+            IForma forma;
+            switch (Tipo)
             {
                 case Cuadrado:
-                    if (idioma == Castellano) return cantidad == 1 ? "Cuadrado" : "Cuadrados";
-                    else return cantidad == 1 ? "Square" : "Squares";
+                    forma = new Cuadrado(_lado);
+                    break;
+                case Rectangulo:
+                    forma = new Rectangulo(_ancho, _alto);
+                    break;
+                case Trapecio:
+                    forma = new Trapecio(_baseMayor, _baseMenor, _altura, _ladoOblicuo);
+                    break;
                 case Circulo:
-                    if (idioma == Castellano) return cantidad == 1 ? "Círculo" : "Círculos";
-                    else return cantidad == 1 ? "Circle" : "Circles";
+                    forma = new Circulo(_diametro);
+                    break;
                 case TrianguloEquilatero:
-                    if (idioma == Castellano) return cantidad == 1 ? "Triángulo" : "Triángulos";
-                    else return cantidad == 1 ? "Triangle" : "Triangles";
-            }
-
-            return string.Empty;
-        }
-
-        public decimal CalcularArea()
-        {
-            switch (Tipo)
-            {
-                case Cuadrado: return _lado * _lado;
-                case Circulo: return (decimal)Math.PI * (_lado / 2) * (_lado / 2);
-                case TrianguloEquilatero: return ((decimal)Math.Sqrt(3) / 4) * _lado * _lado;
+                    forma = new TrianguloEquilatero(_lado);
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(@"Forma desconocida");
+                    throw new ArgumentOutOfRangeException("Forma desconocida");
             }
+            return forma;
         }
 
-        public decimal CalcularPerimetro()
+        // **Firma original**: mantiene comportamiento/strings de los tests actuales
+        public static string Imprimir(List<FormaGeometrica> formas, int idioma)
         {
-            switch (Tipo)
-            {
-                case Cuadrado: return _lado * 4;
-                case Circulo: return (decimal)Math.PI * _lado;
-                case TrianguloEquilatero: return _lado * 3;
-                default:
-                    throw new ArgumentOutOfRangeException(@"Forma desconocida");
-            }
+            var shapes = formas?.Select(f => f.ToIForma()).ToList() ?? new List<IForma>();
+            var loc = FormaLocalizationFactory.From(idioma);
+            var svc = new ReporteFormasService(loc);
+            return svc.Print(shapes);
         }
+
+        // Métodos legacy ya no se usan por el reporte, pero se mantienen por compat (si alguien los llama directo).
+        public decimal CalcularArea() => ToIForma().Area;
+        public decimal CalcularPerimetro() => ToIForma().Perimetro;
     }
 }
