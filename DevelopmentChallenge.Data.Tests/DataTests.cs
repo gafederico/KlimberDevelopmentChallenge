@@ -88,5 +88,65 @@ namespace DevelopmentChallenge.Data.Tests
                 "<h1>Reporte de Formas</h1>2 Cuadrados | Area 29 | Perimetro 28 <br/>2 Círculos | Area 13,01 | Perimetro 18,06 <br/>3 Triángulos | Area 49,64 | Perimetro 51,6 <br/>TOTAL:<br/>7 formas Perimetro 97,66 Area 91,65",
                 resumen);
         }
+
+        #region Nuevos tests
+
+        [TestCase]
+        public void TestResumenListaVaciaEnItaliano()
+        {
+            var resumen = FormaGeometrica.Imprimir(new List<FormaGeometrica>(), FormaGeometrica.Italiano);
+            Assert.AreEqual("<h1>Lista vuota di forme!</h1>", resumen);
+        }
+
+        [TestCase]
+        public void TestResumenConUnRectangulo()
+        {
+            var formas = new List<FormaGeometrica>
+            {
+                // Rectángulo 4 x 2  -> Área 8, Perímetro 12
+                new FormaGeometrica(4m, 2m)
+            };
+
+            var resumen = FormaGeometrica.Imprimir(formas, FormaGeometrica.Castellano);
+
+            Assert.AreEqual(
+                "<h1>Reporte de Formas</h1>1 Rectángulo | Area 8 | Perimetro 12 <br/>TOTAL:<br/>1 formas Perimetro 12 Area 8",
+                resumen);
+        }
+
+        [TestCase]
+        public void TestResumenConUnTrapezioEnItaliano()
+        {
+            var formas = new List<FormaGeometrica>
+            {
+                // Trapecio isósceles: B=10, b=6, h=4, lado=3 -> Área 32, Perímetro 22
+                new FormaGeometrica(baseMayor: 10m, baseMenor: 6m, altura: 4m, ladoOblicuo: 3m)
+            };
+
+            var resumen = FormaGeometrica.Imprimir(formas, FormaGeometrica.Italiano);
+
+            Assert.AreEqual(
+                "<h1>Report delle Forme</h1>1 Trapezio | Area 32 | Perimetro 22 <br/>TOTAL:<br/>1 forme Perimetro 22 Area 32",
+                resumen);
+        }
+
+        [TestCase]
+        public void TestResumenRectanguloYTrapecioEnIngles()
+        {
+            var formas = new List<FormaGeometrica>
+            {
+                new FormaGeometrica(4m, 2m), // Rectangle:  Area 8,  Perimeter 12
+                new FormaGeometrica(baseMayor: 10m, baseMenor: 6m, altura: 4m, ladoOblicuo: 3m) // Trapezoid: Area 32, Perimeter 22
+            };
+
+            var resumen = FormaGeometrica.Imprimir(formas, FormaGeometrica.Ingles);
+
+            Assert.AreEqual(
+                "<h1>Shapes report</h1>1 Rectangle | Area 8 | Perimeter 12 <br/>1 Trapezoid | Area 32 | Perimeter 22 <br/>TOTAL:<br/>2 shapes Perimeter 34 Area 40",
+                resumen);
+        }
+
+        #endregion
+
     }
 }
