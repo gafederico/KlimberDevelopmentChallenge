@@ -1,6 +1,6 @@
 # Klimber Development Challenge
 
-Repositorio de la implementación del desafío de refactorización de reportes de formas geométricas.
+Este repositorio contiene la resolución del challenge técnico basado en la refactorización de un módulo legacy encargado de generar reportes de formas geométricas para Klimber.
 
 ## 📋 Descripción
 
