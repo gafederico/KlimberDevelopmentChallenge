@@ -16,7 +16,10 @@ namespace DevelopmentChallenge.Data.Classes.Formas
         }
         public decimal Perimetro
         {
-            get { return (decimal)Math.PI * _diametro; }
+            get
+            {
+                return (decimal)Math.PI * _diametro;
+            }
         }
     }
 }

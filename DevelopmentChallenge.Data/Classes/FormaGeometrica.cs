@@ -16,7 +16,6 @@ using DevelopmentChallenge.Data.Classes.Localization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DevelopmentChallenge.Data.Classes
 {
@@ -43,33 +42,63 @@ namespace DevelopmentChallenge.Data.Classes
         private readonly decimal _lado;                   // cuadrado, triángulo
         private readonly decimal _diametro;               // círculo
         private readonly decimal _ancho, _alto;           // rectángulo
-        private readonly decimal _baseMayor, _baseMenor, _altura, _ladoOblicuo; // trapecio isósceles
+        private readonly decimal _baseMayor, _baseMenor, _altura, _ladoOblicuo; // trapecio
 
-        // Constructores legacy existentes:
+        // Constructor legacy existente:
+
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="FormaGeometrica"/> con el tipo y la dimensión especificados.
+        /// </summary>
+        /// <param name="tipo"> El tipo de la forma geométrica. Debe ser una de las constantes predefinidas: <c>Cuadrado</c>,
+        /// <c>TrianguloEquilatero</c> o <c>Circulo</c>.</param>
+        /// <param name="ancho">La dimensión de la forma. Para <c>Cuadrado</c> y <c>TrianguloEquilatero</c>, representa la longitud del lado.
+        /// Para <c>Circulo</c>, representa el diámetro.</param>
+        /// <exception cref="ArgumentException">Se lanza si <paramref name="tipo"/> no es un tipo de forma válido o si el constructor es incompatible 
+        /// con la forma especificada.</exception>
+
         public FormaGeometrica(int tipo, decimal ancho)
         {
+            if (tipo == Cuadrado || tipo == TrianguloEquilatero)
+                _lado = ancho;
+            else if (tipo == Circulo)
+                _diametro = ancho;
+            else
+                throw new ArgumentException("Constructor incompatible para esta forma");
             Tipo = tipo;
-            // compat: los tests viejos usan este ctor:
-            if (tipo == Cuadrado || tipo == TrianguloEquilatero) _lado = ancho;
-            else if (tipo == Circulo) _diametro = ancho;
-            else throw new ArgumentException("Constructor incompatible para esta forma");
         }
 
-        // Nuevos para rectángulo
+        // De ahora en mas, lo mejor sería tener un constructor para cada forma.
+        // No sería mas necesario una clave, y lo hace mas legible.
+
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="FormaGeometrica"/> como rectangulo.
+        /// </summary>
+        /// <param name="ancho">El ancho del rectangulo.</param>
+        /// <param name="alto">El alto del rectangulo.</param>
         public FormaGeometrica(decimal ancho, decimal alto)
         {
             Tipo = Rectangulo;
-            _ancho = ancho; _alto = alto;
+            _ancho = ancho;
+            _alto = alto;
         }
 
-        // Nuevos para trapecio isósceles
+        /// <summary>
+        /// Inicializa una nueva instancia de <see cref="FormaGeometrica"/> como trapecio.
+        /// </summary>
+        /// <param name="baseMayor">La longitud de la base mayor del trapecio.</param>
+        /// <param name="baseMenor">La longitud de la base menor del trapecio.</param>
+        /// <param name="altura">La altura del trapecio, medida de forma perpendicular a las bases.</param>
+        /// <param name="ladoOblicuo">La longitud de uno de los lados no paralelos (lado oblicuo) del trapecio.</param>
         public FormaGeometrica(decimal baseMayor, decimal baseMenor, decimal altura, decimal ladoOblicuo)
         {
             Tipo = Trapecio;
-            _baseMayor = baseMayor; _baseMenor = baseMenor; _altura = altura; _ladoOblicuo = ladoOblicuo;
+            _baseMayor = baseMayor;
+            _baseMenor = baseMenor;
+            _altura = altura;
+            _ladoOblicuo = ladoOblicuo;
         }
 
-        // Adaptador hacia IShape
+        // Adaptador hacia IForma
         internal IForma ToIForma()
         {
             IForma forma;
@@ -96,13 +125,16 @@ namespace DevelopmentChallenge.Data.Classes
             return forma;
         }
 
-        // **Firma original**: mantiene comportamiento/strings de los tests actuales
+        // **Firma original**: mantiene comportamiento de los tests actuales
         public static string Imprimir(List<FormaGeometrica> formas, int idioma)
         {
-            var shapes = formas?.Select(f => f.ToIForma()).ToList() ?? new List<IForma>();
-            var loc = FormaLocalizationFactory.From(idioma);
-            var svc = new ReporteFormasService(loc);
-            return svc.Print(shapes);
+            // Parse de FormaGeometrica a la interfaz IForma
+            var iFormas = formas?.Select(f => f.ToIForma()).ToList() ?? new List<IForma>();
+
+            var localization = FormaLocalizationFactory.From(idioma);
+            var reporteFormasService = new ReporteFormasService(localization);
+
+            return reporteFormasService.Print(iFormas);
         }
 
         // Métodos legacy ya no se usan por el reporte, pero se mantienen por compat (si alguien los llama directo).

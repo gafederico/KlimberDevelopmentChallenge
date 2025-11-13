@@ -7,11 +7,17 @@
         public string Clave => "square";
         public decimal Area
         {
-            get { return _lado * _lado; }
+            get
+            {
+                return _lado * _lado;
+            }
         }
         public decimal Perimetro
         {
-            get { return 4 * _lado; }
+            get
+            {
+                return 4 * _lado;
+            }
         }
     }
 }

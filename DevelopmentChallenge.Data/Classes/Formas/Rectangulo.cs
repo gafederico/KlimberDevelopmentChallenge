@@ -8,7 +8,9 @@
         public decimal Area
         {
             get
-            { return _ancho * _alto; }
+            {
+                return _ancho * _alto;
+            }
         }
         public decimal Perimetro
         {

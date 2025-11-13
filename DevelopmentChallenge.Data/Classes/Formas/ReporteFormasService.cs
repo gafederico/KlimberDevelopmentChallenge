@@ -17,8 +17,8 @@ namespace DevelopmentChallenge.Data.Classes.Formas
             if (list.Count == 0)
                 return _loc.EmptyList;
 
-            var sb = new StringBuilder();
-            sb.Append(_loc.ReportTitle);
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append(_loc.ReportTitle);
 
             var grouped = list.GroupBy(s => s.Clave);
             decimal totalArea = 0;
@@ -27,17 +27,19 @@ namespace DevelopmentChallenge.Data.Classes.Formas
 
             foreach (var g in grouped)
             {
-                int count = g.Count();
-                decimal area = g.Sum(x => x.Area);
-                decimal per = g.Sum(x => x.Perimetro);
+                var count = g.Count();
+                var area = g.Sum(x => x.Area);
+                var perimeter = g.Sum(x => x.Perimetro);
 
-                sb.Append(_loc.LineFor(g.Key, count, area, per));
+                stringBuilder.Append(_loc.LineFor(g.Key, count, area, perimeter));
 
-                totalArea += area; totalPerimeter += per; totalCount += count;
+                totalArea += area;
+                totalPerimeter += perimeter;
+                totalCount += count;
             }
 
-            sb.Append(_loc.FooterTotals(totalCount, totalArea, totalPerimeter));
-            return sb.ToString();
+            stringBuilder.Append(_loc.FooterTotals(totalCount, totalArea, totalPerimeter));
+            return stringBuilder.ToString();
         }
     }
 }

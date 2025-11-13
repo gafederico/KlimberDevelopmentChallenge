@@ -6,7 +6,10 @@
         private readonly decimal _baseMayor, _baseMenor, _altura, _ladoOblicuo;
         public Trapecio(decimal baseMayor, decimal baseMenor, decimal altura, decimal ladoOblicuo)
         {
-            _baseMayor = baseMayor; _baseMenor = baseMenor; _altura = altura; _ladoOblicuo = ladoOblicuo;
+            _baseMayor = baseMayor;
+            _baseMenor = baseMenor;
+            _altura = altura;
+            _ladoOblicuo = ladoOblicuo;
         }
         public string Clave => "trapezoid";
         public decimal Area
